@@ -9,7 +9,6 @@ from Routes.inventario import router as inventario_router
 from Routes.metodo_pago import router as metodo_pago_router
 from Routes.registro_de_pagos import router as registro_de_pagos_router
 
-
 # Instancia principal de la aplicación FastAPI
 app = FastAPI()
 app.include_router(proveedor_router)

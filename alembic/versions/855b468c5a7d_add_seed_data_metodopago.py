@@ -5,20 +5,19 @@ Revises: 088ebda35568
 Create Date: 2026-02-21 18:15:42.534547
 
 """
+import uuid
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-from Models.metodo_pago import MetodoPago
-
 
 # revision identifiers, used by Alembic.
 revision: str = '855b468c5a7d'
 down_revision: Union[str, Sequence[str], None] = '088ebda35568'
 branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = '088ebda35568'
 
 
 def upgrade() -> None:
@@ -28,16 +27,15 @@ def upgrade() -> None:
     )
 
     # Insertamos las semillas
-    info1 = [
-        {'nombre': 'Transferencia'},
-        {'nombre': 'Tarjeta'},
-        {'nombre': 'Efectivo'},
+    info_metodo_pago = [
+        {'id':uuid.uuid4(),'nombre': 'Transferencia'},
+        {'id':uuid.uuid4(),'nombre': 'Tarjeta'},
+        {'id':uuid.uuid4(),'nombre': 'Efectivo'},
     ]
     
-    seed = [MetodoPago(**item).model_dump() for item in info1]
-    op.bulk_insert(metodosPago_table, seed)
+    op.bulk_insert(metodosPago_table, info_metodo_pago)
 
 
 def downgrade() -> None:
-    """Downgrade schema."""
-    pass
+    op.execute('DELETE FROM metodo_pago')
+    op.drop_table('metodo_pago')

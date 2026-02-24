@@ -17,4 +17,4 @@ primero ``alembic revision --autogenerate`` se le puede colocar posterior al ``"
 indicando cambios en la migración. Para finalmente con ``alembic upgrade head`` efectuar la migración.
 
 ## Ejecutar el proyecto
-``fastapi dev fastapi_postgresAlch.py``
+``fastapi dev main.py``
