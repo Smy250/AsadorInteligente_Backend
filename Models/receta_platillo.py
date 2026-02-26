@@ -2,6 +2,7 @@ import uuid
 
 from sqlalchemy import Column, DECIMAL, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, relationship
 from Config.DatabaseConn import Base
 # DTOs Pydantic
 from pydantic import BaseModel, ConfigDict
