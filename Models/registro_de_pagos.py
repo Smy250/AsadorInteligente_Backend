@@ -1,9 +1,9 @@
 from decimal import Decimal
 from typing import List
-from sqlalchemy import Column, Integer, DECIMAL, TIMESTAMP, ForeignKey, func
+from sqlalchemy import DECIMAL, TIMESTAMP, ForeignKey, func, Integer
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from Config.DatabaseConn import Base
 
 # DTOs Pydantic
@@ -12,16 +12,17 @@ from datetime import datetime
 
 class RegistroDePagos(Base):
     __tablename__ = "registro_de_pagos"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    id_metodo_pago = Column(UUID(as_uuid=True), ForeignKey("metodo_pago.id"), nullable=False)
-    total_venta = Column(DECIMAL)
-    created_at = Column(TIMESTAMP, server_default=func.now())
-    
-    detalles: Mapped[List["DetallePago"]] = relationship(
-        "DetallePago",
-        back_populates="pago",
-        cascade="all, delete-orphan"
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id_metodo_pago: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("metodos_pago.id"), nullable=False)
+    #id_platillo: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("platillos.id"), nullable=False)
+    #cantidad: Mapped[int] = mapped_column(Integer)
+    total_venta: Mapped[Decimal] = mapped_column(DECIMAL)
+    created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP, server_default=func.now())
+
+    # Relaciónes con DetallePago
+    pago: Mapped[list['DetallePago']] = relationship(back_populates="detalles_pago") # type: ignore
+    metodo_pago: Mapped['MetodoPago'] = relationship(back_populates="registros_de_pagos") # type: ignore
+    #platillo: Mapped['Platillo'] = relationship(back_populates="registro_pagos") # type: ignore
 
 
 class PlatilloEnRegistroDePago(BaseModel):
@@ -30,12 +31,13 @@ class PlatilloEnRegistroDePago(BaseModel):
 
 
 class RegistroDePagosCreate(BaseModel):
-    platillos: List[PlatilloEnRegistroDePago]
     id_metodo_pago: uuid.UUID
+    platillos: List[PlatilloEnRegistroDePago]
     total_venta: Decimal = 0
 
 
 class RegistroDePagosRead(RegistroDePagosCreate):
     id: uuid.UUID
     created_at: datetime
+    
     model_config = ConfigDict(from_attributes=True)

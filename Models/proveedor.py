@@ -5,14 +5,15 @@ from Config.DatabaseConn import Base
 # DTOs Pydantic
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
+from sqlalchemy.orm import mapped_column, Mapped
 
 class Proveedor(Base):
-    __tablename__ = "proveedor"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    nombre = Column(String)
-    contacto = Column(String)
-    created_at = Column(TIMESTAMP, server_default=func.now())
-    update_at = Column(TIMESTAMP, server_default=func.now())
+    __tablename__ = "proveedores"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    nombre: Mapped[str] = mapped_column(String)
+    contacto: Mapped[str] = Column(String)
+    created_at: Mapped[TIMESTAMP] = Column(TIMESTAMP, server_default=func.now())
+    update_at: Mapped[TIMESTAMP] = Column(TIMESTAMP, server_default=func.now())
 
 class ProveedorCreate(BaseModel):
     nombre: str

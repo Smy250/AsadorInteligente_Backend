@@ -1,29 +1,33 @@
 # DTOs Pydantic
+import decimal
 import uuid
 
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
-from sqlalchemy import DECIMAL, TIMESTAMP, UUID, Column, ForeignKey, String, func
+from sqlalchemy import DECIMAL, TIMESTAMP, UUID, String, func
+from sqlalchemy.orm import mapped_column, relationship, Mapped
 from Config.DatabaseConn import Base
 
 
 class Inventario(Base):
     __tablename__ = "inventario"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    nombre_insumo = Column(String, nullable=False)
-    categoria = Column(String, nullable=False)
-    cantidad = Column(DECIMAL)
-    precio_compra = Column(DECIMAL)
-    created_at = Column(TIMESTAMP, server_default=func.now())
-    update_at = Column(TIMESTAMP, server_default=func.now())
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    nombre_insumo: Mapped[str] = mapped_column(String, nullable=False)
+    categoria: Mapped[str] = mapped_column(String, nullable=False)
+    cantidad: Mapped[decimal.Decimal] = mapped_column(DECIMAL)
+    precio_compra: Mapped[decimal.Decimal] = mapped_column(DECIMAL)
+    created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP, server_default=func.now())
+    update_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP, server_default=func.now())
+    
+    receta_platillos: Mapped[list['RecetaPlatillo']] = relationship(back_populates="insumo") # type: ignore
 
 
 class InventarioCreate(BaseModel):
     nombre_insumo: str
     categoria: str
-    cantidad: float
-    precio_compra: float
+    cantidad: int
+    precio_compra: decimal.Decimal
 
 
 class InventarioRead(InventarioCreate):
