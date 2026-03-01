@@ -9,6 +9,7 @@ from Routes.receta_platillo import router as receta_platillo_router
 from Routes.inventario import router as inventario_router
 from Routes.metodo_pago import router as metodo_pago_router
 from Routes.registro_de_pagos import router as registro_de_pagos_router
+from Routes.gemini import router as gemini_router
 
 app = FastAPI(
     title="Asador Inteligente API",
@@ -22,3 +23,4 @@ app.include_router(inventario_router, tags=["Inventario y Stock"])
 app.include_router(platillos_router, tags=["Menú de Platillos"])
 app.include_router(metodo_pago_router, tags=["Configuración de Pagos"])
 app.include_router(receta_platillo_router, tags=["Recetas y Escandallos"])
+app.include_router(gemini_router, tags=["Consulta Gemini"])
