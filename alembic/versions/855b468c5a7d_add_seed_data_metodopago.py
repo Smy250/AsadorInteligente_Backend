@@ -21,7 +21,7 @@ depends_on: Union[str, Sequence[str], None] = '088ebda35568'
 
 
 def upgrade() -> None:
-    metodosPago_table = sa.table('metodo_pago',
+    metodosPago_table = sa.table('metodos_pago',
         sa.column('id', postgresql.UUID(as_uuid=True)),
         sa.column('nombre', sa.String)
     )
