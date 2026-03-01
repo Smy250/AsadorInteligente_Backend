@@ -9,7 +9,8 @@ Ubicate en la raíz del proyecto y coloca en tu terminal lo siguiente: ``pip ins
 
 ## Creación de variables de entorno.
 Necesitas tener definidas las siguientes variables de entorno para que funcione correctamente:
-``{user, password, host, port, db}`` Indica tu usuario, contraseña, dirección ip, puerto y base de datos.
+``{user, password, host, port, db, GEMINI_API_KEY}`` Indica tu usuario, contraseña, dirección ip, 
+puerto, base de datos y api key de Gemini.
 
 ## Migrar la Base de datos
 Luego de instalar las dependencias, para realizar la migración ingresa lo siguiente:
