@@ -10,12 +10,24 @@ from Routes.inventario import router as inventario_router
 from Routes.metodo_pago import router as metodo_pago_router
 from Routes.registro_de_pagos import router as registro_de_pagos_router
 from Routes.gemini import router as gemini_router
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="Asador Inteligente API",
     description="Sistema de gestión de inventario, recetas y facturación",
     version="1.0.0"
 )
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 app.include_router(registro_de_pagos_router, tags=[
     "Historial de Transacciones"])
 app.include_router(proveedor_router, tags=["Gestión de Proveedores"])
