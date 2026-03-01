@@ -1,6 +1,6 @@
 from decimal import Decimal
 from typing import List
-from sqlalchemy import DECIMAL, TIMESTAMP, ForeignKey, func, Integer
+from sqlalchemy import DECIMAL, TIMESTAMP, ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
