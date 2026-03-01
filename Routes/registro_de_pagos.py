@@ -1,8 +1,12 @@
+import uuid
+
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import select
+from sqlalchemy.orm import Session, selectinload
 from Config.DatabaseConn import SessionLocal
 from Models.detalle_pagos import DetallePago
-from Models.registro_de_pagos import RegistroDePagos, RegistroDePagosCreate, RegistroDePagosRead
+from Models.registro_de_pagos import PlatilloEnRegistroDePago, RegistroDePagos, RegistroDePagosCreate, RegistroDePagosRead
+from Models.platillos import Platillo
 
 router = APIRouter()
 
@@ -14,40 +18,79 @@ def get_db():
         db.close()
 
 
-@router.post("/registro_pagos/")
-def crear_registro_pago(registro: RegistroDePagosCreate, db: Session = Depends(get_db)):
-    # 1. Creamos el objeto principal
-    db_registro = RegistroDePagos(
-        id_metodo_pago=registro.id_metodo_pago,
-        total_venta=registro.total_venta
+@router.post("/registro_pagos/", response_model=RegistroDePagosRead)
+def crear_registro_pago(datos: RegistroDePagosCreate, db: Session = Depends(get_db)):
+    # Obtener los platillos desde la base de datos
+    ids_platillos = [p.id_platillo for p in datos.platillos]
+    platillos_db = db.execute(
+        select(Platillo.id, Platillo.precio).where(Platillo.id.in_(ids_platillos))
+    ).all()
+
+    precios_map = {p.id: p.precio for p in platillos_db}
+
+    # Validar que todos los platillos existan
+    for item in datos.platillos:
+        if item.id_platillo not in precios_map:
+            raise HTTPException(status_code=404, detail=f"Platillo con id {item.id_platillo} no encontrado")
+
+    # Calcular total_venta
+    total_venta = sum(
+        precios_map[item.id_platillo] * item.cantidad
+        for item in datos.platillos
     )
 
-    # 2. Asignamos los detalles
-    db_registro.detalles = [
-        DetallePago(id_platillo=p.id_platillo, cantidad=p.cantidad)
-        for p in registro.platillos
+    # Crear el registro de pago
+    registro_pago = RegistroDePagos(
+        id_metodo_pago=datos.id_metodo_pago,
+        total_venta=total_venta
+    )
+    db.add(registro_pago)
+    db.flush()
+
+    # Crear los detalles de pago
+    for item in datos.platillos:
+        detalle = DetallePago(
+            id_pago=registro_pago.id,
+            id_platillo=item.id_platillo,
+            cantidad=item.cantidad
+        )
+        db.add(detalle)
+
+    db.commit()
+
+    # Retornar el modelo de lectura
+    return RegistroDePagosRead(
+        id=registro_pago.id,
+        id_metodo_pago=registro_pago.id_metodo_pago,
+        total_venta=registro_pago.total_venta,
+        created_at=registro_pago.created_at,
+        platillos=datos.platillos
+    )
+
+@router.get("/registro_pagos/{id_pago}", response_model=RegistroDePagosRead)
+def obtener_registro_pago(id_pago: uuid.UUID, db: Session = Depends(get_db)):
+    registro_pago = db.query(RegistroDePagos).options(
+        selectinload(RegistroDePagos.pago)
+    ).filter(RegistroDePagos.id == id_pago).first()
+
+    if not registro_pago:
+        raise HTTPException(status_code=404, detail="Pago no encontrado")
+
+    platillos_detalle = [
+        PlatilloEnRegistroDePago(
+            id_platillo=detalle.id_platillo,
+            cantidad=detalle.cantidad
+        )
+        for detalle in registro_pago.pago
     ]
 
-    db.add(db_registro)
-    db.commit()
-    
-    # 3. Recargamos con las relaciones cargadas explícitamente
-    # Esto asegura que 'detalles' esté lleno antes de enviarlo al response_model
-    db_registro = db.query(RegistroDePagos)\
-        .options(joinedload(RegistroDePagos.detalles))\
-        .filter(RegistroDePagos.id == db_registro.id)\
-        .first()
-
-    return db_registro
-
-
-@router.get("/registro_pagos/{registro_id}")
-def obtener_registro_pago(registro_id: str, db: Session = Depends(get_db)):
-    registro = db.query(RegistroDePagos).filter(RegistroDePagos.id == registro_id).first()
-    if not registro:
-        raise HTTPException(status_code=404, detail="Registro de pago no encontrado")
-    return registro
-
+    return RegistroDePagosRead(
+        id=registro_pago.id,
+        id_metodo_pago=registro_pago.id_metodo_pago,
+        total_venta=registro_pago.total_venta,
+        created_at=registro_pago.created_at,
+        platillos=platillos_detalle
+    )
 
 @router.get("/registro_pagos/")
 def listar_registros_pago(db: Session = Depends(get_db)):
