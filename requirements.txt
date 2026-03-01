@@ -5,3 +5,5 @@ fastapi==0.129.1
 sqlalchemy==2.0.46
 
 pydantic==2.12.5
+
+google-genai==1.65.0
