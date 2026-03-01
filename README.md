@@ -12,9 +12,8 @@ Necesitas tener definidas las siguientes variables de entorno para que funcione 
 ``{user, password, host, port, db}`` Indica tu usuario, contraseña, dirección ip, puerto y base de datos.
 
 ## Migrar la Base de datos
-Luego de instalar las dependencias para realizar la migración en orden, realiza lo siguiente:
-primero ``alembic revision --autogenerate`` se le puede colocar posterior al ``"--autogenerate"`` un ``-m "mensaje"``
-indicando cambios en la migración. Para finalmente con ``alembic upgrade head`` efectuar la migración.
+Luego de instalar las dependencias, para realizar la migración ingresa lo siguiente:
+``alembic upgrade head`` para efectuar la migración.
 
 ## Ejecutar el proyecto
 ``fastapi dev main.py``
