@@ -16,10 +16,9 @@ app = FastAPI(
     version="1.0.0"
 )
 app.include_router(registro_de_pagos_router, tags=[
-                   "Historial de Transacciones"])
+    "Historial de Transacciones"])
 app.include_router(proveedor_router, tags=["Gestión de Proveedores"])
 app.include_router(inventario_router, tags=["Inventario y Stock"])
 app.include_router(platillos_router, tags=["Menú de Platillos"])
 app.include_router(metodo_pago_router, tags=["Configuración de Pagos"])
-
 app.include_router(receta_platillo_router, tags=["Recetas y Escandallos"])
