@@ -7,13 +7,13 @@ from sqlalchemy import create_engine  # Column: define create_engine:
 load_dotenv()
 
 def getDictionary():
-  return {
-  "user" : os.getenv("user"),
-  "password" : os.getenv("password"),
-  "host" : os.getenv("host"),
-  "port" : os.getenv("port"),
-  "db": os.getenv("db")
-  }
+    return {
+    "user" : os.getenv("user"),
+    "password" : os.getenv("password"),
+    "host" : os.getenv("host"),
+    "port" : os.getenv("port"),
+    "db": os.getenv("db")
+    }
 
 def getDatabaseConnection():
     USER = os.getenv("user")
