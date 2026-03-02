@@ -16,14 +16,8 @@ class DetallePago(Base):
     # Relaciones
     detalles_pago: Mapped['RegistroDePagos'] = relationship(back_populates="pago") # type: ignore
     platillo: Mapped['Platillo'] = relationship(back_populates="detalles_pago") # type: ignore
-    
+
 class DetallePagoCreate(BaseModel):
     id_pago: uuid.UUID
     id_platillo: uuid.UUID
     cantidad: int
-
-"""     # Evita import circular usando string
-    pago: Mapped["RegistroDePagos"] = relationship(
-        "RegistroDePagos",
-        back_populates="detalles"
-    ) """
