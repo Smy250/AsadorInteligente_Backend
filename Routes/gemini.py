@@ -42,7 +42,7 @@ def obtener_ventas_totales_ia(info: dict, db: Session = Depends(get_db), skip: i
   consulta_gemini = consulta_agente_pro(clave_para_analisis, info['respuesta'], sesionGemini)
   return consulta_gemini
 
-#Obtener las ventas totales.
+#Obtener ventas totales con tablas.
 @router.get("/ventas_totales/")
 def obtener_ventas_totales(db: Session = Depends(get_db), skip: int = 0, 
   limit: int = 100,):
@@ -63,6 +63,21 @@ def obtener_ventas_totales(db: Session = Depends(get_db), skip: int = 0,
   
   ventas_dict = [row._asdict() for row in resultado]
   return ventas_dict
+
+#Se obtienen las ventas totales en crudo numericamente.
+@router.get("/ventas_totales_raw/")
+def obtener_ventas_totales(db: Session = Depends(get_db),):
+  resultado = (
+    db.query(
+      func.sum(Platillo.precio * DetallePago.cantidad).label("ventas_totales")
+    )
+    .join(DetallePago, DetallePago.id_platillo == Platillo.id)
+    .join(RegistroDePagos, RegistroDePagos.id == DetallePago.id_pago)
+    .scalar()  # Con esta query se extrae el valor único
+  )
+  suma_total = float(resultado) if resultado else 0.0
+  
+  return {"ventas_totales":suma_total}
 
 """
 Retorna los productos más vendidos (top N) con:
@@ -186,9 +201,9 @@ def obtener_inventario_total_lista(
 
 
 """
-Retorna valor total del inventario y totales por categoría
+Retorna valor total del inventario.
 """
-@router.post("/inventario/inventario-valor-total/")
+@router.get("/inventario/inventario-valor-total/")
 def obtener_valor_total_inventario(
   db: Session = Depends(get_db)
 ):
@@ -197,26 +212,7 @@ def obtener_valor_total_inventario(
     func.sum(Inventario.cantidad * Inventario.precio_compra)
   ).scalar()
   
-  # Obtener por categoría
-  por_categoria = (
-      db.query(
-        Inventario.categoria,
-        func.sum(Inventario.cantidad * Inventario.precio_compra).label("valor")
-      )
-      .group_by(Inventario.categoria)
-      .all()
-  )
-  
-  resumen = {
-      "valor_total_inventario": float(valor_total) if valor_total else 0.0,
-      "por_categoria": [
-        {"categoria": cat, "valor": float(val)}
-        for cat, val in por_categoria
-      ]
-  }
-  
-  resumen_json = json.dumps(resumen, ensure_ascii=False, indent=2)
-  return resumen_json
+  return {"inversion_total":valor_total}
 
 
 """
