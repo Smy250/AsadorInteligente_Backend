@@ -1,6 +1,6 @@
 from decimal import Decimal
 from typing import List
-from sqlalchemy import DECIMAL, TIMESTAMP, ForeignKey, func
+from sqlalchemy import Integer, DECIMAL, TIMESTAMP, ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -13,7 +13,7 @@ from datetime import datetime
 class RegistroDePagos(Base):
     __tablename__ = "registro_de_pagos"
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    id_metodo_pago: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("metodos_pago.id"), nullable=False)
+    id_metodo_pago: Mapped[int] = mapped_column(Integer, ForeignKey("metodos_pago.id"), nullable=False)
     #id_platillo: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("platillos.id"), nullable=False)
     #cantidad: Mapped[int] = mapped_column(Integer)
     total_venta: Mapped[Decimal] = mapped_column(DECIMAL)
@@ -31,7 +31,7 @@ class PlatilloEnRegistroDePago(BaseModel):
 
 
 class RegistroDePagosCreate(BaseModel):
-    id_metodo_pago: uuid.UUID
+    id_metodo_pago: int
     platillos: List[PlatilloEnRegistroDePago]
     total_venta: Decimal = 0
 

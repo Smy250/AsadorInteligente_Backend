@@ -22,15 +22,15 @@ depends_on: Union[str, Sequence[str], None] = '088ebda35568'
 
 def upgrade() -> None:
     metodosPago_table = sa.table('metodos_pago',
-        sa.column('id', postgresql.UUID(as_uuid=True)),
+        sa.column('id', sa.Integer),
         sa.column('nombre', sa.String)
     )
 
     # Insertamos las semillas
     info_metodo_pago = [
-        {'id':uuid.uuid4(),'nombre': 'Transferencia'},
-        {'id':uuid.uuid4(),'nombre': 'Tarjeta'},
-        {'id':uuid.uuid4(),'nombre': 'Efectivo'},
+        {'id':1,'nombre': 'Transferencia'},
+        {'id':2,'nombre': 'Tarjeta'},
+        {'id':3,'nombre': 'Efectivo'},
     ]
     
     op.bulk_insert(metodosPago_table, info_metodo_pago)

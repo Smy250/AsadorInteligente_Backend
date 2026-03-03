@@ -13,7 +13,7 @@ def get_db():
         db.close()
 
 @router.get("/metodos_pago/{metodo_id}", response_model=MetodoPagoRead)
-def obtener_metodo_pago(metodo_id: str, db: Session = Depends(get_db)):
+def obtener_metodo_pago(metodo_id: int, db: Session = Depends(get_db)):
     metodo = db.query(MetodoPago).filter(MetodoPago.id == metodo_id).first()
     if not metodo:
         raise HTTPException(status_code=404, detail="Método de pago no encontrado")
