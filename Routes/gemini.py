@@ -209,7 +209,7 @@ def obtener_valor_total_inventario(
 ):
   # Obtener el total general
   valor_total = db.query(
-    func.sum(Inventario.cantidad * Inventario.precio_compra)
+    func.sum(Inventario.precio_compra)
   ).scalar()
   
   return {"inversion_total":valor_total}
