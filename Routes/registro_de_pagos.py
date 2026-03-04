@@ -67,10 +67,11 @@ def crear_registro_pago(datos: RegistroDePagosCreate, db: Session = Depends(get_
         platillos=datos.platillos
     )
 
+
 @router.get("/registro_pagos/{id_pago}", response_model=RegistroDePagosRead)
 def obtener_registro_pago(id_pago: uuid.UUID, db: Session = Depends(get_db)):
     registro_pago = db.query(RegistroDePagos).options(
-        selectinload(RegistroDePagos.pago)
+        selectinload(RegistroDePagos.pago).selectinload(DetallePago.platillo)
     ).filter(RegistroDePagos.id == id_pago).first()
 
     if not registro_pago:
@@ -79,7 +80,8 @@ def obtener_registro_pago(id_pago: uuid.UUID, db: Session = Depends(get_db)):
     platillos_detalle = [
         PlatilloEnRegistroDePago(
             id_platillo=detalle.id_platillo,
-            cantidad=detalle.cantidad
+            cantidad=detalle.cantidad,
+            nombre=detalle.platillo.nombre
         )
         for detalle in registro_pago.pago
     ]
@@ -92,9 +94,36 @@ def obtener_registro_pago(id_pago: uuid.UUID, db: Session = Depends(get_db)):
         platillos=platillos_detalle
     )
 
+
 @router.get("/registro_pagos/")
 def listar_registros_pago(db: Session = Depends(get_db)):
-    return db.query(RegistroDePagos).all()
+    registros = db.query(RegistroDePagos).options(
+        selectinload(RegistroDePagos.pago).selectinload(DetallePago.platillo)
+    ).all()
+
+    respuesta = []
+
+    for registro in registros:
+        platillos_detalle = [
+            PlatilloEnRegistroDePago(
+                id_platillo=detalle.id_platillo,
+                cantidad=detalle.cantidad,
+                nombre=detalle.platillo.nombre
+            )
+            for detalle in registro.pago
+        ]
+
+        respuesta.append(
+            RegistroDePagosRead(
+                id=registro.id,
+                id_metodo_pago=registro.id_metodo_pago,
+                total_venta=registro.total_venta,
+                created_at=registro.created_at,
+                platillos=platillos_detalle
+            )
+        )
+
+    return respuesta
 
 
 @router.put("/registro_pagos/{registro_id}")
