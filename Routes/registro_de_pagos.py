@@ -160,7 +160,7 @@ def eliminar_registro_pago(registro_id: str, db: Session = Depends(get_db)):
 def obtener_recomendacion_popularidad(db: Session = Depends(get_db)):
     try:
         # Ahora sí, la función espera 'db' y se la pasamos
-        producto_estrella = entrenar_y_predecir(db)
+        producto_estrella = entrenar_y_predecir()
 
         # Validar si devolvió el mensaje de "vacío"
         if producto_estrella == "No hay ventas registradas":

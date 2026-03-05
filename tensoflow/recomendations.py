@@ -5,14 +5,17 @@ from sqlalchemy import func
 from Models.detalle_pagos import DetallePago
 from Models.platillos import Platillo
 import os
+from Config.DatabaseConn import SessionLocal
 
 # Bloquear avisos innecesarios
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 
-def entrenar_y_predecir(db: Session) -> str:
+def entrenar_y_predecir() -> str:
     # 1. Extraer datos agregados usando la sesión recibida
+    db: Session = SessionLocal()
+
     datos = db.query(
         Platillo.nombre,
         func.sum(DetallePago.cantidad).label("total")
