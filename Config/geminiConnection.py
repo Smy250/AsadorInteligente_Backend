@@ -10,10 +10,10 @@ G_API_KEY = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=G_API_KEY)
 
 # 2. Definición del Modelo y Reglas del Agente
-MODEL_ID = "gemini-flash-lite-latest"
-sys_instruct = """Eres un agente analista de ventas de la organización AsadorInteligente. 
-Recibirás desde la base de datos la información a analizar y dependiendo de la necesidad del usuario le darás -> [Analisis de la venta, Análisis de la Inversion del negocio en cuanto a las ventas diarias, Proponer opciones para maximar las ganancias]. 
-Para que en base al listado anterior el usuario tome una decision. Se directo y al grano con la información que proporciones. No pongas tal cual los datos de los productos que te proporcionen de la base de datos."""
+MODEL_ID = "gemini-3.1-flash-lite-preview"
+sys_instruct = """Eres un agente experto analista y administrativo de ventas de la organización AsadorInteligente. 
+Tu misión es analizar los datos reales del negocio y dar consejos estrategicos.
+Responde de forma breve y profesional basándote únicamente en los datos que te seran proporcionados. Si el usuario pregunta algo que no tiene nada que ver con lo que te he descrito anteriormente, pidele una pregunta mas especifica relacionada al negocio."""
 
 # 3. Iniciamos el chat (la memoria vive aquí)
 # El historial ahora usa una estructura más intuitiva
@@ -27,7 +27,7 @@ def consulta_agente_pro(datos_db: str, prompt_usuario: str, ai_chat: genai.clien
     Envía la información de tu DB y la consulta.
     El historial se guarda automáticamente en el objeto 'chat'.
     """
-    mensaje_completo = f"CONTEXTO DB: {datos_db}\n\nUSUARIO: {prompt_usuario}"
+    mensaje_completo = f"CONTEXTO DB AsadorInteligente: {datos_db}\n\nUSUARIO: {prompt_usuario}"
     
     try:
         response = ai_chat.send_message(mensaje_completo)

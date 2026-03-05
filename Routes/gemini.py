@@ -8,8 +8,11 @@ from Models.detalle_pagos import DetallePago
 from Models.metodo_pago import MetodoPago
 from Models.platillos import Platillo
 from Models.registro_de_pagos import RegistroDePagos
+from Config.DatabasePreData import path_
 from Config.DatabaseConn import get_db
 from Config.geminiConnection import chat as sesionGemini, consulta_agente_pro
+from Data.consults import get_valor_total_inventario, get_ventas_totales, get_top10_productos_mas_vendidos
+from tensoflow.recomendations import entrenar_y_predecir
 
 router = APIRouter()
 
@@ -42,6 +45,29 @@ def obtener_ventas_totales_ia(info: dict, db: Session = Depends(get_db), skip: i
   consulta_gemini = consulta_agente_pro(clave_para_analisis, info['respuesta'], sesionGemini)
   return consulta_gemini
 
+#Gemini obtiene todas las estadisticas para asesorar al usuario.
+@router.post("/respuesta_ia/")
+def obtener_ventas_totales_ia(info: dict):
+  try:
+    with open(path_, "r", encoding="utf-8") as f:
+      contenido = f.read().strip()
+    
+    if not contenido:
+      print("El archivo está vacío o no contiene datos válidos.")
+      return None
+
+    # Intentar parsear el contenido como JSON
+    #info_asadorInteligente = json.loads(contenido)
+    consulta_gemini = consulta_agente_pro(contenido, info['respuesta'], sesionGemini)
+    return consulta_gemini
+
+  except json.JSONDecodeError:
+    return "El archivo no contiene un JSON válido."
+  except FileNotFoundError:
+    return f"Archivo {path_} no encontrado."
+  except Exception as e:
+    return f"Error al leer el archivo: {e}"
+
 #Obtener ventas totales con tablas.
 @router.get("/ventas_totales/")
 def obtener_ventas_totales(db: Session = Depends(get_db), skip: int = 0, 
@@ -67,7 +93,7 @@ def obtener_ventas_totales(db: Session = Depends(get_db), skip: int = 0,
 #Se obtienen las ventas totales en crudo numericamente.
 @router.get("/ventas_totales_raw/")
 def obtener_ventas_totales(db: Session = Depends(get_db),):
-  resultado = (
+  """ resultado = (
     db.query(
       func.sum(Platillo.precio * DetallePago.cantidad).label("ventas_totales")
     )
@@ -75,9 +101,19 @@ def obtener_ventas_totales(db: Session = Depends(get_db),):
     .join(RegistroDePagos, RegistroDePagos.id == DetallePago.id_pago)
     .scalar()  # Con esta query se extrae el valor único
   )
-  suma_total = float(resultado) if resultado else 0.0
+  suma_total = float(resultado) if resultado else 0.0 """
   
-  return {"ventas_totales":suma_total}
+  #return {"ventas_totales":suma_total}
+  resumen_inventario_total = get_ventas_totales()
+  resumen_ventas_totales = get_valor_total_inventario()
+  resumen_top10_productos = get_top10_productos_mas_vendidos()
+  resumen_recomendacion = entrenar_y_predecir(db)
+    
+  return { "inversión total": resumen_inventario_total,
+          "ventas totales": resumen_ventas_totales,
+          "top 10 productos":resumen_top10_productos,
+          "resumen de analisis predictivo":{resumen_recomendacion}
+          } 
 
 """
 Retorna los productos más vendidos (top N) con:

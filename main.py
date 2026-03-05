@@ -11,6 +11,9 @@ from Routes.metodo_pago import router as metodo_pago_router
 from Routes.registro_de_pagos import router as registro_de_pagos_router
 from Routes.gemini import router as gemini_router
 from fastapi.middleware.cors import CORSMiddleware
+from Config.DatabasePreData import checkDataInfo
+
+checkDataInfo(0)
 
 app = FastAPI(
     title="Asador Inteligente API",

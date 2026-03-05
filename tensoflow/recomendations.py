@@ -4,10 +4,15 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from Models.detalle_pagos import DetallePago
 from Models.platillos import Platillo
+from Config.DatabaseConn import SessionLocal
+import os
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 
-def entrenar_y_predecir(db: Session):
+def entrenar_y_predecir() -> str:
     # 1. Extraer datos agregados
+    db: Session = SessionLocal()
+    
     datos = db.query(
         Platillo.nombre,
         func.sum(DetallePago.cantidad).label("total")
