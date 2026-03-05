@@ -159,10 +159,21 @@ def eliminar_registro_pago(registro_id: str, db: Session = Depends(get_db)):
 @router.get("/recomendacion_ia_tenso-flow/")
 def obtener_recomendacion_popularidad(db: Session = Depends(get_db)):
     try:
+        # Ahora sí, la función espera 'db' y se la pasamos
         producto_estrella = entrenar_y_predecir(db)
+
+        # Validar si devolvió el mensaje de "vacío"
+        if producto_estrella == "No hay ventas registradas":
+            return {
+                "recomendacion": None,
+                "mensaje": producto_estrella
+            }
+
         return {
             "recomendacion": producto_estrella,
             "mensaje": f"¡{producto_estrella} es lo que más está saliendo! Seguro le encantará al cliente."
         }
     except Exception as e:
+        # Esto te ayudará a ver errores reales en el log si algo falla
+        print(f"Error en IA: {e}")
         raise HTTPException(status_code=500, detail=str(e))
