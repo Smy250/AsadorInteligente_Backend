@@ -71,7 +71,7 @@ def obtener_ventas_totales_ia(info: dict):
 #Obtener ventas totales con tablas.
 @router.get("/ventas_totales/")
 def obtener_ventas_totales(db: Session = Depends(get_db), skip: int = 0, 
-  limit: int = 100,):
+  limit: int = 50,):
   resultado = (
     db.query(
       Platillo.nombre.label("nombre_platillo"),
@@ -93,7 +93,7 @@ def obtener_ventas_totales(db: Session = Depends(get_db), skip: int = 0,
 #Se obtienen las ventas totales en crudo numericamente.
 @router.get("/ventas_totales_raw/")
 def obtener_ventas_totales(db: Session = Depends(get_db),):
-  """ resultado = (
+  resultado = (
     db.query(
       func.sum(Platillo.precio * DetallePago.cantidad).label("ventas_totales")
     )
@@ -101,19 +101,9 @@ def obtener_ventas_totales(db: Session = Depends(get_db),):
     .join(RegistroDePagos, RegistroDePagos.id == DetallePago.id_pago)
     .scalar()  # Con esta query se extrae el valor único
   )
-  suma_total = float(resultado) if resultado else 0.0 """
+  suma_total = float(resultado) if resultado else 0.0 
   
-  #return {"ventas_totales":suma_total}
-  resumen_inventario_total = get_ventas_totales()
-  resumen_ventas_totales = get_valor_total_inventario()
-  resumen_top10_productos = get_top10_productos_mas_vendidos()
-  resumen_recomendacion = entrenar_y_predecir(db)
-    
-  return { "inversión total": resumen_inventario_total,
-          "ventas totales": resumen_ventas_totales,
-          "top 10 productos":resumen_top10_productos,
-          "resumen de analisis predictivo":{resumen_recomendacion}
-          } 
+  return {"ventas_totales":suma_total} 
 
 """
 Retorna los productos más vendidos (top N) con:
@@ -129,7 +119,8 @@ def obtener_top3_productos_mas_vendidos_ia(
   resultado = (
     db.query(
       Platillo.nombre.label("nombre_platillo"),
-      func.sum(DetallePago.cantidad).label("cantidad_total_vendida")
+      func.sum(DetallePago.cantidad).label("cantidad_total_vendida"),
+      func.sum(Platillo.precio * DetallePago.cantidad).label("ventas_acumuladas")
     )
     .join(DetallePago, DetallePago.id_platillo == Platillo.id)
     .group_by(Platillo.id, Platillo.nombre)
@@ -165,7 +156,8 @@ def obtener_top3_productos_mas_vendidos(
   resultado = (
     db.query(
       Platillo.nombre.label("nombre_platillo"),
-      func.sum(DetallePago.cantidad).label("cantidad_total_vendida")
+      func.sum(DetallePago.cantidad).label("cantidad_total_vendida"),
+      func.sum(Platillo.precio * DetallePago.cantidad).label("ventas_acumuladas")
     )
     .join(DetallePago, DetallePago.id_platillo == Platillo.id)
     .group_by(Platillo.id, Platillo.nombre)
@@ -232,8 +224,8 @@ def obtener_inventario_total_lista(
       float(row.precio_compra) if row.precio_compra else 0.0
     ])
   
-  resumen_json = json.dumps(inventario_lista_plana, ensure_ascii=False, indent=2)
-  return resumen_json
+  #resumen_json = json.dumps(inventario_lista_plana, ensure_ascii=False, indent=2)
+  return inventario_lista_plana
 
 
 """

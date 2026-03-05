@@ -1,16 +1,16 @@
 import json
 import os
 
-from Data.consults import get_ventas_totales, get_valor_total_inventario, get_top10_productos_mas_vendidos
+from Data.consults import get_info_inventario, get_ventas_totales, get_valor_total_inventario, get_top10_productos_mas_vendidos
 from tensoflow.recomendations import entrenar_y_predecir
 
 path_ = "./Data/MetricasAsadorInteligente.txt"
 
 def checkDataInfo (up: int):
-  inversion_total = get_ventas_totales()
-  ventas_totales = get_valor_total_inventario()
+  inversion_total = get_valor_total_inventario()
+  inversion_prod = get_info_inventario() 
+  ventas_totales = get_ventas_totales()
   top_10 = get_top10_productos_mas_vendidos()
-  #prediccion = entrenar_y_predecir()
 
   # Verificar que todas las funciones devuelvan datos válidos
   if any(v is None for v in [inversion_total, ventas_totales]):
@@ -18,10 +18,11 @@ def checkDataInfo (up: int):
       return
 
   info_asadorInteligente = {
-      "Inversión total": inversion_total,
-      "Ventas totales": ventas_totales,
-      "Top 10 productos": top_10 or list[any],
-      "Resumen de análisis predictivo": list[str]
+    "Inventario":f"{inversion_prod}\n",
+    "Inversión total del inventario": f"{inversion_total}\n",
+    "Ventas totales": f"{ventas_totales}\n",
+    "Top 10 productos": f"{top_10}\n" or f"{list[any]}\n",
+    "Resumen de análisis predictivo": f"{list[str]}\n"
   }
   
   if os.path.exists(path=path_):
@@ -30,7 +31,7 @@ def checkDataInfo (up: int):
     infoDef(info_asadorInteligente,path_)
 
 
-def infoDef(info: dict[str,any], loc: str):
-  info["Resumen de análisis predictivo"] = entrenar_y_predecir()
+def infoDef(info: any, loc: str):
+  info["Resumen de análisis predictivo"] = f"{entrenar_y_predecir()}\n"
   with open(loc, "w", encoding="utf-8") as f:
     f.write(str(info))
