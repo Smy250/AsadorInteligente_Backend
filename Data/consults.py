@@ -34,6 +34,8 @@ def get_valor_total_inventario(
     func.sum(Inventario.precio_compra)
   ).scalar()
   
+  print(valor_total, "X")
+  
   if valor_total == 0:
     return None
   
@@ -45,7 +47,8 @@ def get_top10_productos_mas_vendidos():
   resultado = (
     db.query(
       Platillo.nombre.label("nombre_platillo"),
-      func.sum(DetallePago.cantidad).label("cantidad_total_vendida")
+      func.sum(DetallePago.cantidad).label("cantidad_total_vendida"),
+      func.sum(Platillo.precio * DetallePago.cantidad).label("ventas_acumuladas")
     )
     .join(DetallePago, DetallePago.id_platillo == Platillo.id)
     .group_by(Platillo.id, Platillo.nombre)
@@ -59,3 +62,27 @@ def get_top10_productos_mas_vendidos():
   
   ventas_dict = [row._asdict() for row in resultado]
   return ventas_dict
+
+def get_info_inventario():
+  db: Session = SessionLocal()
+  
+  resultado = (
+  db.query(
+    Inventario.nombre_insumo,
+    Inventario.categoria,
+    Inventario.cantidad,
+    Inventario.precio_compra
+  )
+  .all()
+  )
+  
+  inventario_lista_plana = []
+  for row in resultado:
+    inventario_lista_plana.append([
+      row.nombre_insumo,
+      row.categoria,
+      float(row.cantidad) if row.cantidad else 0.0,
+      float(row.precio_compra) if row.precio_compra else 0.0
+    ])
+  
+  return inventario_lista_plana
