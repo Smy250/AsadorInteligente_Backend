@@ -34,7 +34,3 @@ def consulta_agente_pro(datos_db: str, prompt_usuario: str, ai_chat: genai.clien
         return response.text
     except Exception as e:
         return f"Error en la nueva API: {e}"
-
-# --- Ejemplo de flujo con memoria ---
-# Turno 1: Le pasas datos
-#print(consulta_agente_pro("", "Hola, ¿Todo correcto?"))

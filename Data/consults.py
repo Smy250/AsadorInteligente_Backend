@@ -34,8 +34,6 @@ def get_valor_total_inventario(
     func.sum(Inventario.precio_compra)
   ).scalar()
   
-  print(valor_total, "X")
-  
   if valor_total == 0:
     return None
   

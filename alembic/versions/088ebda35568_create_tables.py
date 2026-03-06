@@ -100,6 +100,19 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['id_platillo'], ['platillos.id'], ),
         sa.PrimaryKeyConstraint('id')
     )
+    
+    op.create_table('recursos',
+        sa.Column('id', sa.UUID(), nullable=False),
+        sa.Column('id_insumo', sa.UUID(), nullable=False),
+        sa.Column('cantidad_usada', sa.Integer(), nullable=False),
+        sa.Column('motivo', sa.String(), nullable=False),
+        sa.Column('created_at', sa.TIMESTAMP(),
+            server_default=sa.text('now()'), nullable=True),
+        sa.Column('update_at', sa.TIMESTAMP(),
+            server_default=sa.text('now()'), nullable=True),
+        sa.ForeignKeyConstraint(['id_insumo'], ['inventario.id'], ),
+        sa.PrimaryKeyConstraint('id')
+    )
     # ### end Alembic commands ###
 
 

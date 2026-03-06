@@ -21,6 +21,7 @@ class Inventario(Base):
     update_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP, server_default=func.now())
     
     receta_platillos: Mapped[list['RecetaPlatillo']] = relationship(back_populates="insumo") # type: ignore
+    recurso_insumos: Mapped[list['Recursos']] = relationship(back_populates="detalles_inventario") #type: ignore
 
 
 class InventarioCreate(BaseModel):

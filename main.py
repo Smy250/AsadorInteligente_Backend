@@ -10,6 +10,7 @@ from Routes.inventario import router as inventario_router
 from Routes.metodo_pago import router as metodo_pago_router
 from Routes.registro_de_pagos import router as registro_de_pagos_router
 from Routes.gemini import router as gemini_router
+from Routes.recursos import router as recurso_router
 from fastapi.middleware.cors import CORSMiddleware
 from Config.DatabasePreData import checkDataInfo
 
@@ -39,3 +40,4 @@ app.include_router(platillos_router, tags=["Menú de Platillos"])
 app.include_router(metodo_pago_router, tags=["Configuración de Pagos"])
 app.include_router(receta_platillo_router, tags=["Recetas y Escandallos"])
 app.include_router(gemini_router, tags=["Consulta Gemini"])
+app.include_router(recurso_router, tags=["Recursos Gastados"])

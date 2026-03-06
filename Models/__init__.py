@@ -6,7 +6,8 @@ from .receta_platillo import RecetaPlatillo
 from .registro_de_pagos import RegistroDePagos
 from .tipoplatillo import TipoPlatillo
 from .detalle_pagos import DetallePago
+from .recursos import Recursos
 
 __all__ = ["Inventario","MetodoPago","Platillo","Proveedor", 
   "RecetaPlatillo" , "RegistroDePagos", "TipoPlatillo", 
-  "DetallePago"]
+  "DetallePago", "Recursos"]
