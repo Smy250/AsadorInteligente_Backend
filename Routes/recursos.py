@@ -26,8 +26,11 @@ def crear_recurso(recurso: RecursosCreate, db: Session = Depends(get_db)):
 def lista_recursos(db: Session = Depends(get_db)):
   resultado = (
     db.query(
-      Inventario.nombre_insumo.label("nombre_insumo"),
-      Recursos.cantidad_usada.label("cantidad_total")
+      Recursos.id,
+      Inventario.nombre_insumo,
+      Recursos.cantidad_usada,
+      Recursos.motivo,
+      Recursos.created_at
     )
     .join(Inventario, Inventario.id == Recursos.id_insumo)
     .all()
@@ -37,8 +40,11 @@ def lista_recursos(db: Session = Depends(get_db)):
   insumos_gastados = []
   for row in resultado:
     insumos_gastados.append({
-      "insumo": row.nombre_insumo,
-      "total_usado": row.cantidad_total,
+      "id": row.id,
+      "nombre": row.nombre_insumo,
+      "cantidad_usada": row.cantidad_usada,
+      "motivo": row.motivo,
+      "created_at": row.created_at
     })
   
   return insumos_gastados
