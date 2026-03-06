@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from Models.recursos import RecursosRead, Recursos, RecursosCreate
+from Models.Inventario import Inventario
 from Config.DatabaseConn import SessionLocal
 
 router = APIRouter()
@@ -19,6 +21,27 @@ def crear_recurso(recurso: RecursosCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_recursos)
     return db_recursos
+  
+@router.get("/recursos_listado/")
+def lista_recursos(db: Session = Depends(get_db)):
+  resultado = (
+    db.query(
+      Inventario.nombre_insumo.label("nombre_insumo"),
+      Recursos.cantidad_usada.label("cantidad_total")
+    )
+    .join(Inventario, Inventario.id == Recursos.id_insumo)
+    .all()
+  )
+  
+  # Convertir a lista de diccionarios la variable resultado.
+  insumos_gastados = []
+  for row in resultado:
+    insumos_gastados.append({
+      "insumo": row.nombre_insumo,
+      "total_usado": row.cantidad_total,
+    })
+  
+  return insumos_gastados
 
 @router.get("/recursos/{recursos_id}", response_model=RecursosRead)
 def obtener_recurso(recurso_id: str, db: Session = Depends(get_db)):
@@ -30,6 +53,10 @@ def obtener_recurso(recurso_id: str, db: Session = Depends(get_db)):
 @router.get("/recursos/", response_model=list[RecursosRead])
 def listar_recursos(db: Session = Depends(get_db)):
     return db.query(Recursos).all()
+
+@router.get("/recursos_gastados/")
+def listar_recursos_gastados(db: Session = Depends(get_db)):
+    return db.query(func.sum(Recursos.cantidad_usada).label("cantidad")).scalar()
 
 @router.put("/recursos/{recurso_id}", response_model=RecursosRead)
 def modificar_recurso(id_recurso: str, id_insumo: str, receta: RecursosCreate, db: Session = Depends(get_db)):
